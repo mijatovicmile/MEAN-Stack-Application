@@ -1,0 +1,16 @@
+:host {
+    display: block;
+    margin-top: 1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mat-action-row button {
+    margin-right: 5px;
+}
+
+.mat-action-row button:last-child {
+    margin-right: 0px;
+}
