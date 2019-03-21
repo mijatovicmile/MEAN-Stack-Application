@@ -32,8 +32,11 @@ export class PostListComponent implements OnInit, OnDestroy {
    * A lifecycle hook that is called after Angular has initialized all data-bound properties of a directive. 
    */
   ngOnInit() {
-    // Fetch a list of posts
-    this.posts = this.postService.getPosts();
+
+    /**
+     * Trigger HTTP request whenever the post list component is loaded
+     */
+    this.postService.getPosts();
     
     // Set up a listener by reaching out to the Post Service (getPostUpdateListener), which returns an observable 
     this.postsSub = this.postService.getPostUpdateListener()

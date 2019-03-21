@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 /**
  * A Subject is a special type of Observable which shares a single execution path among observers (EventEmitter)
@@ -20,25 +21,27 @@ export class PostService {
     // Create a new instance of Subject (EventEmitter), and here I want to pass a list of posts as a payload 
     private postsUpdated = new Subject<Post[]>();
 
+    // Inject httpClient dependency
+    constructor(private http: HttpClient) {}
+
     // Method for getting (fetching) all posts
     getPosts() {
-
-        /**
-         * Create a new array and with using spread operators I will pull all elements from posts array 
-         * and add them to this new array, so I am creating a new array with the old objects and
-         * therefore old array has been copied 
-         */
-        return [...this.posts];
+        this.http.get<{message: string, posts: Post[]}>("http://localhost:8080/api/posts")
+            .subscribe((postData) => {
+                this.posts = postData.posts;
+                this.postsUpdated.next([...this.posts]);
+            });
     }
 
     // Returns an object to which we can listen the post updating
     getPostUpdateListener() {
         return this.postsUpdated.asObservable();
     }
-
+ 
     // Method for adding a new post where I expect to get a post title and post content as an argument
     addPost(title: string, content: string) {
         const post: Post = {
+            id: null,
             title: title,
             content: content
         }
