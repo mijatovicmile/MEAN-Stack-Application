@@ -8,9 +8,6 @@ import { FormsModule }   from '@angular/forms';
 /**
  * The HttpClient offers a simplified client HTTP API for Angular applications that rests on the 
  * XMLHttpRequest interface exposed by browsers. 
- * Additional benefits of HttpClient include testability features, 
- * typed request and response objects, request and response interception, 
- * Observable apis, and streamlined error handling.
  */
 import { HttpClientModule } from '@angular/common/http';
 

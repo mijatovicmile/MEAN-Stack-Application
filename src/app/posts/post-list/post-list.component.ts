@@ -46,6 +46,11 @@ export class PostListComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Delete post method
+  onDelete(postId: string) {
+    this.postService.deletePost(postId);
+  }
+
   /**
    * A lifecycle hook that is called when a directive, pipe, or service is destroyed. 
    */

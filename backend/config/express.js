@@ -7,7 +7,7 @@ const path = require('path');
 // Parse incoming request bodies in a middleware before our handlers available under the req.body property
 const bodyParser = require('body-parser');
 
-// Import Post model 
+// Import Post database model 
 const Post = require('../models/post');
 
 // Create an Express application and store it in a constant named app, by running express() as a function
@@ -28,7 +28,6 @@ app.use(bodyParser.json());
  */
 app.use(bodyParser.urlencoded({ extended: false }));
 
-
 /**
  * Serve static files such as images, CSS files, and JavaScript files,
  * use the express.static built-in middleware function in Express.
@@ -36,24 +35,56 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 
+// CORS (Cross-Origin Resource Sharing) middleware
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+        "Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PATCH, DELETE, OPTIONS"
+    );
+    next();
+});
+
+// Middleware for fetching the data from the database
 app.get('/api/posts', (req, res, next) => {
-    const posts = [
-        { 
-            id: '1',
-            title: 'Post Title',
-            content: 'Post content'
-        }
-    ];
-    res.status(200).json({
-        message: 'Post fetched successfully',
-        post: posts
+    // Fetchind data from a post collection
+    Post.find().then(documents => {
+        res.status(200).json({
+            message: 'Post fetched successfully',
+            posts: documents
+        });
     });
 });
 
+// Middleware which will be triggered for incoming POST requests (adding post to the database)
 app.post('/api/posts', (req, res, next) => {
-
+    const post = new Post({
+        title: req.body.title,
+        content: req.body.content
+    })
+    // Save a document (post) to the database
+    post.save().then(createdPost => {
+        res.status(201).json({
+            message: 'Post added successfully',
+            postId: createdPost._id
+        });
+    });
 });
 
+// Deleting (document) post from the database
+app.delete('/api/posts/:id', (req, res, next) => {
+    Post.deleteOne({ _id: req.params.id })
+        .then(result => {
+            console.log(result);
+            res.status(200).json({
+                message: 'Post deleted!'
+            })
+        })
+});
 
 // Exports the application module
 module.exports = app;
