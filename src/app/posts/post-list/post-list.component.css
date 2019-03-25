@@ -7,10 +7,10 @@
     text-align: center;
 }
 
-.mat-action-row button {
+.mat-action-row a {
     margin-right: 5px;
 }
 
-.mat-action-row button:last-child {
-    margin-right: 0px;
+mat-spinner {
+    margin: auto;
 }

@@ -16,6 +16,7 @@ import { Post } from '../post.model';
 export class PostListComponent implements OnInit, OnDestroy {
 
   posts: Post[] = [];
+  spinnerIsLoading = false;
   private postsSub: Subscription;
 
   /**
@@ -32,7 +33,7 @@ export class PostListComponent implements OnInit, OnDestroy {
    * A lifecycle hook that is called after Angular has initialized all data-bound properties of a directive. 
    */
   ngOnInit() {
-
+    this.spinnerIsLoading = true;
     /**
      * Trigger HTTP request whenever the post list component is loaded
      */
@@ -42,6 +43,7 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postsSub = this.postService.getPostUpdateListener()
       // Pass an argument as a function which will be called whenever a new value was received 
       .subscribe((posts: Post[]) => {
+        this.spinnerIsLoading = false;
         this.posts = posts;
     });
   }

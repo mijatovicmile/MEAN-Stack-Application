@@ -1,7 +1,7 @@
 // Require and configure dotenv module, which loads environment variables from a .env file into process.env
 require('dotenv').config(); 
 
-const config = {
+const environment = {
     port: process.env.PORT,
     mongo: {
         host: process.env.MONGO_ATLAS_HOST,
@@ -11,4 +11,4 @@ const config = {
 };
 
 // Exports the config module
-module.exports = config;
+module.exports = environment;

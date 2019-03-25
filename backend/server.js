@@ -1,4 +1,6 @@
+// Environment port and database variables configuration
 const config = require('./config/config');
+
 const app = require('./config/express');
 
 require('./config/mongoose');

@@ -1,6 +1,10 @@
 // Exports required infrastructure for Angular application
 import { BrowserModule } from '@angular/platform-browser';
+
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
+// App routing module
+import { AppRoutingModule } from './app-routing.module';
 
 // Exports the required providers and directives for template-driven forms, making them available for import by NgModules that import this module.
 import { FormsModule }   from '@angular/forms';
@@ -32,9 +36,9 @@ import {
   MatCardModule,
   MatButtonModule,
   MatToolbarModule,
-  MatExpansionModule
+  MatExpansionModule,
+  MatProgressSpinnerModule,
 } from "@angular/material";
-
 
 @NgModule({
   declarations: [
@@ -45,6 +49,7 @@ import {
   ],
   imports: [
     BrowserModule,
+    AppRoutingModule,
     BrowserAnimationsModule,
     FormsModule,
     MatInputModule,
@@ -52,6 +57,7 @@ import {
     MatButtonModule,
     MatToolbarModule,
     MatExpansionModule,
+    MatProgressSpinnerModule,
     HttpClientModule
   ],
   providers: [],
