@@ -6,8 +6,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 // App routing module
 import { AppRoutingModule } from './app-routing.module';
 
-// Reactive forms provide a model-driven approach to handling form inputs whose values change over time
-import { ReactiveFormsModule } from '@angular/forms';
+/**
+ * Import Reactive and template driven forms
+ * Reactive forms provide a model-driven approach to handling form inputs whose values change over time
+ */
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 /**
  * The HttpClient offers a simplified client HTTP API for Angular applications that rests on the 
@@ -27,6 +30,12 @@ import { PostCreateComponent } from '../app/posts/post-create/post-create.compon
 // Import the post list component
 import { PostListComponent } from './posts/post-list/post-list.component';
 
+// Import the Login component
+import { LoginComponent } from './auth/login/login.component';
+
+// Import the Signup component
+import { SignupComponent } from './auth/signup/signup.component';
+
 // Import the header component
 import { HeaderComponent } from './header/header.component';
 
@@ -41,17 +50,21 @@ import {
   MatPaginatorModule,
 } from "@angular/material";
 
+
 @NgModule({
   declarations: [
     AppComponent,
     PostCreateComponent,
     HeaderComponent,
-    PostListComponent
+    PostListComponent,
+    LoginComponent,
+    SignupComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    FormsModule,
     ReactiveFormsModule,
     MatInputModule,
     MatCardModule,
