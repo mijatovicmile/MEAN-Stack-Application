@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
+import { PageEvent } from '@angular/material';
 
 // Import the Post Service 
 import { PostService } from '../posts.service';
@@ -16,8 +17,17 @@ import { Post } from '../post.model';
 export class PostListComponent implements OnInit, OnDestroy {
 
   posts: Post[] = [];
-  spinnerIsLoading = false;
   private postsSub: Subscription;
+
+  // MatSpinner 
+  spinnerIsLoading = false;
+
+  // MatPaginator Inputs
+  totalPosts = 0;
+  postsPerPage = 2 ;
+  currentPage = 1;
+  pageSizeOptions = [1, 2, 5, 7, 10];
+
 
   /**
    * Add PostService as dependency injection
@@ -34,23 +44,40 @@ export class PostListComponent implements OnInit, OnDestroy {
    */
   ngOnInit() {
     this.spinnerIsLoading = true;
-    /**
-     * Trigger HTTP request whenever the post list component is loaded
-     */
-    this.postService.getPosts();
+
+    // Trigger HTTP request whenever the post list component is loaded
+    this.postService.getPosts(this.postsPerPage, this.currentPage);
     
     // Set up a listener by reaching out to the Post Service (getPostUpdateListener), which returns an observable 
     this.postsSub = this.postService.getPostUpdateListener()
       // Pass an argument as a function which will be called whenever a new value was received 
-      .subscribe((posts: Post[]) => {
+      .subscribe((postData: {posts: Post[], postCount: number} ) => {
         this.spinnerIsLoading = false;
-        this.posts = posts;
+        this.totalPosts = postData.postCount;
+        this.posts = postData.posts;
     });
+  }
+
+  /**
+   * Changing the page with paginator
+   * @param pageData - MatPaginator Output
+   */
+  onChangedPage(pageData: PageEvent) {
+    this.spinnerIsLoading = true;
+
+    this.currentPage = pageData.pageIndex + 1;
+    this.postsPerPage = pageData.pageSize;
+
+    this.postService.getPosts(this.postsPerPage, this.currentPage);
   }
 
   // Delete post method
   onDelete(postId: string) {
-    this.postService.deletePost(postId);
+    this.spinnerIsLoading = true;
+
+    this.postService.deletePost(postId).subscribe(() => {
+      this.postService.getPosts(this.postsPerPage, this.currentPage);
+    });
   }
 
   /**

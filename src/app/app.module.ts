@@ -6,8 +6,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 // App routing module
 import { AppRoutingModule } from './app-routing.module';
 
-// Exports the required providers and directives for template-driven forms, making them available for import by NgModules that import this module.
-import { FormsModule }   from '@angular/forms';
+// Reactive forms provide a model-driven approach to handling form inputs whose values change over time
+import { ReactiveFormsModule } from '@angular/forms';
 
 /**
  * The HttpClient offers a simplified client HTTP API for Angular applications that rests on the 
@@ -38,6 +38,7 @@ import {
   MatToolbarModule,
   MatExpansionModule,
   MatProgressSpinnerModule,
+  MatPaginatorModule,
 } from "@angular/material";
 
 @NgModule({
@@ -51,13 +52,14 @@ import {
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    FormsModule,
+    ReactiveFormsModule,
     MatInputModule,
     MatCardModule,
     MatButtonModule,
     MatToolbarModule,
     MatExpansionModule,
     MatProgressSpinnerModule,
+    MatPaginatorModule,
     HttpClientModule
   ],
   providers: [],

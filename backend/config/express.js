@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 
 // Import Post Route 
 const postsRoute = require('../routes/posts');
-
+ 
 // Create an Express application and store it in a constant named app, by running express() as a function
 const app = express();
 
@@ -29,10 +29,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /**
- * Serve static files such as images, CSS files, and JavaScript files,
+ * Serve static image files from public/images folder
  * use the express.static built-in middleware function in Express.
  */
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public/images', express.static(path.join('backend/public/images')))
 
 
 // CORS (Cross-Origin Resource Sharing) middleware
