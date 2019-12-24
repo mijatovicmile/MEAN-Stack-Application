@@ -1,8 +1,11 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { FormGroup, FormControl, Validators } from "@angular/forms";
 
 // Contains the information about a route associated with a component loaded in an outlet
 import { ActivatedRoute, ParamMap } from "@angular/router";
+
+// Subscription
+import { Subscription } from "rxjs";
 
 // Import the Post Service
 import { PostService } from "../posts.service";
@@ -12,13 +15,14 @@ import { Post } from "../post.model";
 
 // Import MIME Type Validator
 import { mimeType } from "./mime-type.validator";
+import { AuthService } from "src/app/auth/auth.service";
 
 @Component({
   selector: "app-post-create",
   templateUrl: "post-create.component.html",
   styleUrls: ["./post-create.component.css"]
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
   postForm: FormGroup;
 
   post: Post;
@@ -29,9 +33,20 @@ export class PostCreateComponent implements OnInit {
   private mode = "create";
   private postId: string;
 
-  constructor(public postService: PostService, public route: ActivatedRoute) {}
+  private authSubscription: Subscription;
+
+  constructor(
+    public postService: PostService,
+    public route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
+    this.authSubscription = this.authService
+      .getAuthStatusListener()
+      .subscribe(authStatus => {
+        this.spinnerIsLoading = false;
+      });
     // Creating a FormGroup instance for reactive form
     this.postForm = new FormGroup({
       title: new FormControl(null, {
@@ -63,7 +78,8 @@ export class PostCreateComponent implements OnInit {
             id: postData._id,
             title: postData.title,
             content: postData.content,
-            imagePath: postData.imagePath
+            imagePath: postData.imagePath,
+            creator: postData.creator
           };
           /**
            * Reactive forms have methods to change a control's value programmatically,
@@ -99,7 +115,11 @@ export class PostCreateComponent implements OnInit {
     // Patch value allows us to target a single form control, which is an image in my case
     this.postForm.patchValue({ image: file });
 
-    // Recalculates the value and validation status of the control
+    /**
+     * Recalculates the value and validation status of the control.
+     * Informs Angulat that I changed the value and it should re-evaluate that,
+     * store that value internally and check whether the value I did patch is valid
+     */
     this.postForm.get("image").updateValueAndValidity();
 
     // Convert image to data URL that can be used by the image tag
@@ -132,5 +152,9 @@ export class PostCreateComponent implements OnInit {
     }
     // Reset the form after submiting the post data
     this.postForm.reset();
+  }
+
+  ngOnDestroy() {
+    this.authSubscription.unsubscribe();
   }
 }

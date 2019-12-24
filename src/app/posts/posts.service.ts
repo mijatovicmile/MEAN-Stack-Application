@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
 
 /**
  * A Subject is a special type of Observable which shares a single execution path among observers (EventEmitter)
@@ -12,10 +13,15 @@ import { Subject } from "rxjs";
  * Map method allows us to transform every element of an array info a new element and store them back into a new array
  */
 import { map } from "rxjs/operators";
-import { Router } from "@angular/router";
 
 // Import Post model
 import { Post } from "./post.model";
+
+// Environemnt variable
+import { environment } from "src/environments/environment";
+
+// Backend api
+const BACKEND_API = environment.apiUrl + "/posts/";
 
 @Injectable({ providedIn: "root" })
 
@@ -39,7 +45,7 @@ export class PostService {
     const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
       .get<{ message: string; posts: any; totalPosts: number }>(
-        "http://localhost:3000/api/posts" + queryParams
+        BACKEND_API + queryParams
       )
       .pipe(
         map(postData => {
@@ -50,7 +56,8 @@ export class PostService {
                 title: post.title,
                 content: post.content,
                 id: post._id,
-                imagePath: post.imagePath
+                imagePath: post.imagePath,
+                creator: post.creator
               };
             }),
             totalPosts: postData.totalPosts
@@ -74,12 +81,17 @@ export class PostService {
   }
 
   getPost(id: string) {
+    /**
+     * Not get the posts from our local array of posts,
+     * but instead, get it from the server
+     */
     return this.http.get<{
       _id: string;
       title: string;
       content: string;
       imagePath: string;
-    }>("http://localhost:3000/api/posts/" + id);
+      creator: string;
+    }>(BACKEND_API + id);
   }
 
   // Method for adding a new post where I expect to get a post id, title and post content as an argument
@@ -98,10 +110,7 @@ export class PostService {
     postData.append("image", image, title);
 
     this.http
-      .post<{ message: string; post: Post }>(
-        "http://localhost:3000/api/posts",
-        postData
-      )
+      .post<{ message: string; post: Post }>(BACKEND_API, postData)
       .subscribe(responseData => {
         // const post: Post = {
         //   id: responseData.post.id,
@@ -125,6 +134,7 @@ export class PostService {
   // Update (edit) post
   updatePost(id: string, title: string, content: string, image: File | string) {
     let postData: Post | FormData;
+    // File will be an object , a string will not
     if (typeof image === "object") {
       /**
        * Create an empty FormData object
@@ -132,6 +142,9 @@ export class PostService {
        * The FormData object lets you compile a set of key/value pairs to send using XMLHttpRequest.
        * It is primarily intended for use in sending form data,
        * but can be used independently from forms in order to transmit keyed data
+       *
+       * This is an object provided by JavaScript and formData is basically a data format which
+       * allows us to combine text values and blob (file values)
        */
       postData = new FormData();
 
@@ -144,30 +157,33 @@ export class PostService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       };
     }
-    this.http
-      .put("http://localhost:3000/api/posts/" + id, postData)
-      .subscribe(response => {
-        // const updatedPosts = [...this.posts];
-        // const oldPostIndex = updatedPosts.findIndex(p => p.id === id);
-        // const post: Post = {
-        //     id: id,
-        //     title: title,
-        //     content: content,
-        //     imagePath: ''
-        // };
-        // updatedPosts[oldPostIndex] = post;
-        // this.posts = updatedPosts;
-        // this.postsUpdated.next([...this.posts]);
-        this.router.navigate(["/"]);
-      });
+    this.http.put(BACKEND_API + id, postData).subscribe(response => {
+      // // Clone post array and store it in an updatedPost constant
+      // const updatedPosts = [...this.posts];
+      // // Search for that old post version by its ID
+      // const oldPostIndex = updatedPosts.findIndex(p => p.id === id);
+      // const post: Post = {
+      //     id: id,
+      //     title: title,
+      //     content: content,
+      //     imagePath: response.imagePath
+      // };
+      // // Update (replace) old post with new post
+      // updatedPosts[oldPostIndex] = post;
+      // this.posts = updatedPosts;
+      // // Tell my app about updating the post through the subject and send a copy of my updated posts
+      // this.postsUpdated.next([...this.posts]);
+      this.router.navigate(["/"]);
+    });
   }
 
   // Delete post
   deletePost(postId: string) {
-    return this.http.delete("http://localhost:3000/api/posts/" + postId);
+    return this.http.delete(BACKEND_API + postId);
     // .subscribe(() => {
     //     /**
     //      * Update the frontend after deleting the post

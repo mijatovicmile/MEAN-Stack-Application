@@ -14,7 +14,8 @@ const Schema = mongoose.Schema;
 const postSchema = new Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  imagePath: { type: String, required: true }
+  imagePath: { type: String, required: true },
+  creator: { type: mongoose.Schema.ObjectId, ref: "User", required: true }
 });
 
 // Compiling Schema into a model

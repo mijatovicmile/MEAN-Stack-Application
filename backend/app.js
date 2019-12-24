@@ -7,11 +7,34 @@ const path = require("path");
 // Parse incoming request bodies in a middleware before our handlers available under the req.body property
 const bodyParser = require("body-parser");
 
-// Import Post Route
-const postsRoute = require("../routes/posts");
+// Mongoose is a MongoDB object modeling tool designed to work in an asynchronous environment
+const mongoose = require("mongoose");
+
+// Import Posts Routes
+const postsRoute = require("./routes/posts");
+
+// Import User authentication Routes
+const userRoutes = require("./routes/user");
 
 // Create an Express application and store it in a constant named app, by running express() as a function
 const app = express();
+
+// Connecting to MongoDB
+mongoose
+  .connect(
+    "mongodb+srv://Mile:" +
+      process.env.MONGO_ATLAS_PASSWORD +
+      "@cluster-i2ivt.mongodb.net/posts?retryWrites=true&w=majority",
+    { useUnifiedTopology: true, useNewUrlParser: true }
+  )
+  // Connection to database is successfully
+  .then(() => {
+    console.log("Successfully connected to database");
+  })
+  // Catch and log any potential error we might have
+  .catch(err => {
+    console.log("Connection to database failed", +err);
+  });
 
 // Returns middleware that only parses json and only looks at requests where the Content-Type header matches the type option
 app.use(bodyParser.json());
@@ -29,17 +52,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /**
- * Serve static image files from public/images folder
+ * Serve static image files from /images folder
  * use the express.static built-in middleware function in Express.
  */
-app.use("/public/images", express.static(path.join("backend/public/images")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // CORS (Cross-Origin Resource Sharing) middleware
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -48,7 +71,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Posts Routes in my application
 app.use("/api/posts", postsRoute);
+
+// User authentication routes in my application
+app.use("/api/user", userRoutes);
 
 // Exports the application module
 module.exports = app;

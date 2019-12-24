@@ -2,11 +2,14 @@ import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
 import { PageEvent } from "@angular/material";
 
+// Import Post model where I defined how the Post will looks like
+import { Post } from "../post.model";
+
 // Import the Post Service
 import { PostService } from "../posts.service";
 
-// Import Post model where I defined how the Post will looks like
-import { Post } from "../post.model";
+// Import Auth Service
+import { AuthService } from "src/app/auth/auth.service";
 
 @Component({
   selector: "app-post-list",
@@ -15,10 +18,18 @@ import { Post } from "../post.model";
 })
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
+
+  userId: string;
+
+  // Subscriptions
   private postsSub: Subscription;
+  private authSubscription: Subscription;
 
   // MatSpinner
   spinnerIsLoading = false;
+
+  // Authentication
+  userIsAuthenticated = false;
 
   // MatPaginator Inputs
   totalPosts = 0;
@@ -34,7 +45,10 @@ export class PostListComponent implements OnInit, OnDestroy {
    *
    * @param postService - Instance of Post Service
    */
-  constructor(public postService: PostService) {}
+  constructor(
+    public postService: PostService,
+    private authService: AuthService
+  ) {}
 
   /**
    * A lifecycle hook that is called after Angular has initialized all data-bound properties of a directive.
@@ -45,6 +59,9 @@ export class PostListComponent implements OnInit, OnDestroy {
     // Trigger HTTP request whenever the post list component is loaded
     this.postService.getPosts(this.postsPerPage, this.currentPage);
 
+    // Get User ID
+    this.userId = this.authService.getUserId();
+
     // Set up a listener by reaching out to the Post Service (getPostUpdateListener), which returns an observable
     this.postsSub = this.postService
       .getPostUpdateListener()
@@ -53,6 +70,13 @@ export class PostListComponent implements OnInit, OnDestroy {
         this.spinnerIsLoading = false;
         this.totalPosts = postData.postCount;
         this.posts = postData.posts;
+      });
+    this.userIsAuthenticated = this.authService.getIsAuth();
+    this.authSubscription = this.authService
+      .getAuthStatusListener()
+      .subscribe(authStatus => {
+        this.userIsAuthenticated = authStatus;
+        this.userId = this.authService.getUserId();
       });
   }
 
@@ -69,13 +93,19 @@ export class PostListComponent implements OnInit, OnDestroy {
     this.postService.getPosts(this.postsPerPage, this.currentPage);
   }
 
-  // Delete post method
+  // Delete post
   onDelete(postId: string) {
     this.spinnerIsLoading = true;
 
-    this.postService.deletePost(postId).subscribe(() => {
-      this.postService.getPosts(this.postsPerPage, this.currentPage);
-    });
+    this.postService.deletePost(postId).subscribe(
+      () => {
+        // Fething new posts when once we successfully deleted a post
+        this.postService.getPosts(this.postsPerPage, this.currentPage);
+      },
+      error => {
+        this.spinnerIsLoading = false;
+      }
+    );
   }
 
   /**
@@ -84,5 +114,6 @@ export class PostListComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     // Remove the subscription and prevent memory leaks
     this.postsSub.unsubscribe();
+    this.authSubscription.unsubscribe();
   }
 }

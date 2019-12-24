@@ -2,14 +2,13 @@ import { AbstractControl } from "@angular/forms";
 import { Observable, Observer, of } from "rxjs";
 
 /**
- *
  * Mime type validator will have the task of getting the value of a control which will be a file,
  * reads data using FileReader and then check for the mime type of that file
- *
  */
 
 /**
  * Validator will be a function which read control value and return the whether that is valid or not.
+ *
  * This will be an asynchronous validator because reading in that file with the FileReader is an async task.
  * Since it's a async validator, I have to define a special return type for this validator function.
  *
@@ -26,15 +25,8 @@ export const mimeType = (
   control: AbstractControl
 ): Promise<{ [key: string]: any }> | Observable<{ [key: string]: any }> => {
   if (typeof control.value === "string") {
-    /**
-     * If type of control value is equal to string I want to return an Observable
-     *
-     * "of" is a quck way of adding or creating an Observable which will emit data immediately
-     */
     return of(null);
-  } else {
   }
-
   // Extract the file and I need to tell TypeScript that tis is a file because it could be anything I can store as a value
   const file = control.value as File;
 
@@ -45,10 +37,6 @@ export const mimeType = (
   const fileReaderObservable = Observable.create(
     (observer: Observer<{ [key: string]: any }>) => {
       fileReader.addEventListener("loadend", () => {
-        /**
-         * Adding MIME Type validation here
-         */
-
         /**
          * Create a new array of 8 bit unsigned integers and we can think of this as a way that allows us
          * to access or to read certain patterns in the file
@@ -66,8 +54,7 @@ export const mimeType = (
         switch (header) {
           /**
            * Here I will have a string which has a clearly defined pattern for the different file types
-           *
-           * and here I check for certain pattersn and these are patterns which stand for certain file types (png/jpg patterns)
+           * and here I check for certain patterns and these are patterns which stand for certain file types (png/jpg patterns)
            */
           case "89504e47":
             isValid = true;
